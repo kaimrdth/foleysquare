@@ -20,6 +20,8 @@ export function TableList({
 }: TableListProps) {
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const splitIndex = Math.ceil(tables.length / 2);
+  const columns = tables.length > 24 ? [tables.slice(0, splitIndex), tables.slice(splitIndex)] : [tables];
 
   function focusTableName(id: string) {
     window.requestAnimationFrame(() => {
@@ -39,17 +41,15 @@ export function TableList({
     });
   }, [selectedIds]);
 
-  return (
-    <aside className="table-list-panel" aria-label="Tables">
-      <div className="table-list-header">
-        <span>Tables</span>
-        <span>{tables.length}</span>
-      </div>
-      <div className="table-list-scroll">
-        {tables.length === 0 ? (
-          <div className="table-list-empty">No tables yet</div>
-        ) : (
-          tables.map((table, index) => (
+  function renderRows(columnTables: TableAsset[], offset: number) {
+    if (tables.length === 0) {
+      return <div className="table-list-empty">No organizations yet</div>;
+    }
+
+    return columnTables.map((table, columnIndex) => {
+      const index = offset + columnIndex;
+
+      return (
             <div
               ref={(row) => {
                 rowRefs.current[table.id] = row;
@@ -131,9 +131,28 @@ export function TableList({
                 }}
               />
             </div>
-          ))
-        )}
-      </div>
-    </aside>
+      );
+    });
+  }
+
+  return (
+    <>
+      {columns.map((columnTables, columnIndex) => {
+        const offset = columnIndex === 0 ? 0 : splitIndex;
+        return (
+          <aside
+            key={columnIndex}
+            className={`table-list-panel ${columnIndex === 0 ? "left" : "right"}`}
+            aria-label={columnIndex === 0 ? "Organizations" : "Organizations continued"}
+          >
+            <div className="table-list-header">
+              <span>{columnIndex === 0 ? "Organizations" : "Organizations"}</span>
+              <span>{columnIndex === 0 ? tables.length : `${offset + 1}-${tables.length}`}</span>
+            </div>
+            <div className="table-list-scroll">{renderRows(columnTables, offset)}</div>
+          </aside>
+        );
+      })}
+    </>
   );
 }

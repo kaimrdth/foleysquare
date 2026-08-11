@@ -36,7 +36,7 @@ export function Toolbar({
     <header className="toolbar">
       <div className="brand">
         <MapPinned size={19} aria-hidden="true" />
-        <h1>Foley Square Layout</h1>
+        <h1>MJO Community Resource Fair</h1>
       </div>
       <div className="toolbar-actions">
         <button type="button" className="primary-action" onClick={onAddTable}>
@@ -47,7 +47,7 @@ export function Toolbar({
           <Type size={16} aria-hidden="true" />
           Add Text
         </button>
-        <span className="table-count">Tables: {tableCount}</span>
+        <span className="table-count">Organizations: {tableCount}</span>
         <span className={`sync-status ${syncStatus}`}>
           <Cloud size={15} aria-hidden="true" />
           {syncLabel}

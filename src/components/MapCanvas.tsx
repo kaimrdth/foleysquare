@@ -292,6 +292,8 @@ export function MapCanvas({
 
       if (asset.type === "table") {
         const size = tablePixelSize(overlayState.projection, asset.position, asset.rotation);
+        const tableNumber =
+          layout.assets.filter((item) => item.type === "table").findIndex((table) => table.id === asset.id) + 1;
 
         return (
           <div
@@ -318,6 +320,7 @@ export function MapCanvas({
             tabIndex={0}
             aria-label={`Table ${asset.label}`}
           >
+            <span className="table-number-badge">{tableNumber}</span>
             {selected && (
               <button
                 type="button"

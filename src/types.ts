@@ -11,6 +11,7 @@ export type TableAsset = {
   depthFt: 2.5;
   rotation: number;
   label: string;
+  color?: string;
 };
 
 export type TextAsset = {

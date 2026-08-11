@@ -131,6 +131,7 @@ export default function App() {
       depthFt: 2.5,
       rotation: 0,
       label: nextTableLabel(layout.assets),
+      color: "#ffffff",
     };
 
     updateLayout((current) => ({ ...current, assets: [...current.assets, asset] }));

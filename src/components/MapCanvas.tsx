@@ -143,7 +143,7 @@ export function MapCanvas({
           zoom: layoutRef.current.map.zoom,
           heading: layoutRef.current.map.heading ?? 0,
           tilt: layoutRef.current.map.tilt ?? 0,
-          mapTypeId: "satellite",
+          mapTypeId: "roadmap",
           styles: [
             {
               elementType: "labels",
@@ -297,8 +297,10 @@ export function MapCanvas({
               top: point.y,
               width: size.width,
               height: size.height,
+              backgroundColor: asset.color ?? "#ffffff",
+              "--counter-rotation": `${-asset.rotation}deg`,
               transform: `translate(-50%, -50%) rotate(${asset.rotation}deg)`,
-            }}
+            } as React.CSSProperties}
             onPointerDown={(event) => startDrag(event, asset)}
             onClick={(event) => {
               event.stopPropagation();
@@ -333,6 +335,7 @@ export function MapCanvas({
             ) : (
               <span className="table-label">{asset.label}</span>
             )}
+            {!editing && <span className="table-hover-label">{asset.label}</span>}
           </div>
         );
       }

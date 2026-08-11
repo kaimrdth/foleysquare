@@ -30,6 +30,10 @@ export type LayoutSettings = {
     left?: { x: number; y: number };
     right?: { x: number; y: number };
   };
+  organizationPanelSizes?: {
+    left?: { width: number; height: number };
+    right?: { width: number; height: number };
+  };
 };
 
 export type LayoutState = {

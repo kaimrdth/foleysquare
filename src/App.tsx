@@ -29,6 +29,7 @@ const DEFAULT_LAYOUT: LayoutState = {
     mapNumberFontSize: 12,
     organizationFontSize: 12,
     organizationPanelPositions: {},
+    organizationPanelSizes: {},
   },
 };
 
@@ -76,6 +77,10 @@ export default function App() {
     organizationPanelPositions: {
       ...DEFAULT_LAYOUT.settings!.organizationPanelPositions,
       ...layout.settings?.organizationPanelPositions,
+    },
+    organizationPanelSizes: {
+      ...DEFAULT_LAYOUT.settings!.organizationPanelSizes,
+      ...layout.settings?.organizationPanelSizes,
     },
   };
 
@@ -220,6 +225,11 @@ export default function App() {
             ...current.settings?.organizationPanelPositions,
             ...patch.organizationPanelPositions,
           },
+          organizationPanelSizes: {
+            ...DEFAULT_LAYOUT.settings!.organizationPanelSizes,
+            ...current.settings?.organizationPanelSizes,
+            ...patch.organizationPanelSizes,
+          },
         },
       }));
     },
@@ -231,6 +241,17 @@ export default function App() {
       updateSettings({
         organizationPanelPositions: {
           [panel]: position,
+        },
+      });
+    },
+    [updateSettings],
+  );
+
+  const resizeOrganizationPanel = useCallback(
+    (panel: "left" | "right", size: { width: number; height: number }) => {
+      updateSettings({
+        organizationPanelSizes: {
+          [panel]: size,
         },
       });
     },
@@ -458,11 +479,13 @@ export default function App() {
           selectedIds={selectedIds}
           hoveredId={hoveredTableId}
           panelPositions={settings.organizationPanelPositions ?? {}}
+          panelSizes={settings.organizationPanelSizes ?? {}}
           onSelect={selectAsset}
           onHover={setHoveredTableId}
           onRename={(id, label) => updateAsset(id, { label } as Partial<LayoutAsset>)}
           onReorder={reorderTables}
           onMovePanel={moveOrganizationPanel}
+          onResizePanel={resizeOrganizationPanel}
         />
         <MapCanvas
           layout={layout}

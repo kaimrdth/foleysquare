@@ -232,7 +232,26 @@ input {
   min-height: 0;
   overflow-x: hidden;
   overflow-y: hidden;
-  padding: 6px;
+  padding: 6px 12px 12px 6px;
+}
+
+.panel-resize-handle {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background:
+    linear-gradient(135deg, transparent 0 48%, #7b8494 49% 52%, transparent 53%),
+    linear-gradient(135deg, transparent 0 62%, #7b8494 63% 66%, transparent 67%);
+  border: 0;
+  cursor: nwse-resize;
+  opacity: 0.75;
+}
+
+.panel-resize-handle:hover {
+  opacity: 1;
 }
 
 .table-list-empty {

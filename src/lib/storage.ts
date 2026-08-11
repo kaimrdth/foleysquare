@@ -23,6 +23,10 @@ export function loadLayout(defaultLayout: LayoutState): LayoutState {
           ...defaultLayout.settings?.organizationPanelPositions,
           ...parsed.settings?.organizationPanelPositions,
         },
+        organizationPanelSizes: {
+          ...defaultLayout.settings?.organizationPanelSizes,
+          ...parsed.settings?.organizationPanelSizes,
+        },
       },
     };
   } catch {

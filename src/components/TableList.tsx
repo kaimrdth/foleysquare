@@ -9,11 +9,16 @@ type TableListProps = {
     left?: { x: number; y: number };
     right?: { x: number; y: number };
   };
+  panelSizes: {
+    left?: { width: number; height: number };
+    right?: { width: number; height: number };
+  };
   onSelect: (id: string, additive?: boolean) => void;
   onHover: (id: string | null) => void;
   onRename: (id: string, label: string) => void;
   onReorder: (draggedId: string, targetId: string) => void;
   onMovePanel: (panel: "left" | "right", position: { x: number; y: number }) => void;
+  onResizePanel: (panel: "left" | "right", size: { width: number; height: number }) => void;
 };
 
 export function TableList({
@@ -21,11 +26,13 @@ export function TableList({
   selectedIds,
   hoveredId,
   panelPositions,
+  panelSizes,
   onSelect,
   onHover,
   onRename,
   onReorder,
   onMovePanel,
+  onResizePanel,
 }: TableListProps) {
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -180,12 +187,47 @@ export function TableList({
     window.addEventListener("pointerup", onPointerUp);
   }
 
+  function startPanelResize(event: React.PointerEvent, panel: "left" | "right") {
+    const panelElement = panelRefs.current[panel];
+    const parentElement = panelElement?.offsetParent as HTMLElement | null;
+    if (!panelElement || !parentElement) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    panelElement.setPointerCapture(event.pointerId);
+
+    const panelRect = panelElement.getBoundingClientRect();
+    const parentRect = parentElement.getBoundingClientRect();
+    const start = {
+      pointerX: event.clientX,
+      pointerY: event.clientY,
+      width: panelRect.width,
+      height: panelRect.height,
+    };
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      onResizePanel(panel, {
+        width: Math.min(Math.max(260, start.width + moveEvent.clientX - start.pointerX), parentRect.width - 16),
+        height: Math.min(Math.max(180, start.height + moveEvent.clientY - start.pointerY), parentRect.height - 16),
+      });
+    };
+
+    const onPointerUp = () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+  }
+
   return (
     <>
       {columns.map((columnTables, columnIndex) => {
         const offset = columnIndex === 0 ? 0 : splitIndex;
         const panel = columnIndex === 0 ? "left" : "right";
         const position = panelPositions[panel];
+        const size = panelSizes[panel];
         return (
           <aside
             key={columnIndex}
@@ -193,7 +235,10 @@ export function TableList({
               panelRefs.current[panel] = element;
             }}
             className={`table-list-panel ${panel}`}
-            style={position ? { left: position.x, top: position.y, right: "auto" } : undefined}
+            style={{
+              ...(position ? { left: position.x, top: position.y, right: "auto" } : {}),
+              ...(size ? { width: size.width, height: size.height, maxHeight: "none" } : {}),
+            }}
             aria-label={columnIndex === 0 ? "Organizations" : "Organizations continued"}
           >
             <div className="table-list-header" onPointerDown={(event) => startPanelDrag(event, panel)}>
@@ -203,6 +248,12 @@ export function TableList({
               </span>
             </div>
             <div className="table-list-scroll">{renderRows(columnTables, offset)}</div>
+            <button
+              type="button"
+              className="panel-resize-handle"
+              aria-label="Resize organization panel"
+              onPointerDown={(event) => startPanelResize(event, panel)}
+            />
           </aside>
         );
       })}

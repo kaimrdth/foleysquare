@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapCanvas } from "./components/MapCanvas";
 import { Toolbar } from "./components/Toolbar";
 import { AssetEditor } from "./components/AssetEditor";
+import { TableList } from "./components/TableList";
 import { createId } from "./lib/ids";
 import {
   fetchRemoteLayout,
@@ -40,6 +41,7 @@ export default function App() {
   const [layout, setLayout] = useState<LayoutState>(() => loadLayout(DEFAULT_LAYOUT));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [hoveredTableId, setHoveredTableId] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<
     "loading" | "saved" | "syncing" | "local" | "error" | "unauthorized"
   >("loading");
@@ -51,6 +53,10 @@ export default function App() {
   const selectedAsset = useMemo(
     () => layout.assets.find((asset) => asset.id === selectedId) ?? null,
     [layout.assets, selectedId],
+  );
+  const tables = useMemo(
+    () => layout.assets.filter((asset) => asset.type === "table"),
+    [layout.assets],
   );
 
   const persistLayout = useCallback((next: LayoutState) => {
@@ -286,7 +292,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <Toolbar
-        tableCount={layout.assets.filter((asset) => asset.type === "table").length}
+        tableCount={tables.length}
         syncStatus={syncStatus}
         onAddTable={addTable}
         onAddText={addText}
@@ -308,10 +314,20 @@ export default function App() {
         }}
       />
       <main className="map-area">
+        <TableList
+          tables={tables}
+          selectedId={selectedId}
+          onSelect={(id) => {
+            setSelectedId(id);
+            setEditingId(null);
+          }}
+          onHover={setHoveredTableId}
+        />
         <MapCanvas
           layout={layout}
           selectedId={selectedId}
           editingId={editingId}
+          hoveredTableId={hoveredTableId}
           onMapReady={(map) => {
             mapRef.current = map;
           }}

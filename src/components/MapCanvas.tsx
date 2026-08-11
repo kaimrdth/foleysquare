@@ -12,6 +12,7 @@ type MapCanvasProps = {
   layout: LayoutState;
   selectedId: string | null;
   editingId: string | null;
+  hoveredTableId: string | null;
   onMapReady: (map: google.maps.Map) => void;
   onMapChanged: (map: LayoutState["map"]) => void;
   onSelect: (id: string | null) => void;
@@ -84,6 +85,7 @@ export function MapCanvas({
   layout,
   selectedId,
   editingId,
+  hoveredTableId,
   onMapReady,
   onMapChanged,
   onSelect,
@@ -284,6 +286,7 @@ export function MapCanvas({
       const point = pointFromLatLng(overlayState.projection, asset.position);
       const selected = asset.id === selectedId;
       const editing = asset.id === editingId;
+      const highlighted = asset.id === hoveredTableId;
 
       if (asset.type === "table") {
         const size = tablePixelSize(overlayState.projection, asset.position, asset.rotation);
@@ -291,7 +294,7 @@ export function MapCanvas({
         return (
           <div
             key={`${asset.id}-${drawTick}`}
-            className={`map-asset table-asset ${selected ? "selected" : ""}`}
+            className={`map-asset table-asset ${selected ? "selected" : ""} ${highlighted ? "highlighted" : ""}`}
             style={{
               left: point.x,
               top: point.y,
@@ -381,6 +384,7 @@ export function MapCanvas({
     onSelect,
     onUpdateAsset,
     overlayState,
+    hoveredTableId,
     selectedId,
     startDrag,
     startRotate,

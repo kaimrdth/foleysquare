@@ -3,13 +3,13 @@ import type { LayoutAsset, TableAsset } from "../types";
 
 const TABLE_COLORS = [
   "#ffffff",
-  "#fee2e2",
-  "#ffedd5",
-  "#fef3c7",
-  "#dcfce7",
-  "#dbeafe",
-  "#ede9fe",
-  "#fce7f3",
+  "#fca5a5",
+  "#fdba74",
+  "#fde047",
+  "#86efac",
+  "#7dd3fc",
+  "#a5b4fc",
+  "#f0abfc",
 ];
 
 type AssetEditorProps = {

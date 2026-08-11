@@ -4,6 +4,7 @@ import type { TableAsset } from "../types";
 type TableListProps = {
   tables: TableAsset[];
   selectedIds: string[];
+  hoveredId: string | null;
   onSelect: (id: string, additive?: boolean) => void;
   onHover: (id: string | null) => void;
   onRename: (id: string, label: string) => void;
@@ -13,6 +14,7 @@ type TableListProps = {
 export function TableList({
   tables,
   selectedIds,
+  hoveredId,
   onSelect,
   onHover,
   onRename,
@@ -55,7 +57,7 @@ export function TableList({
                 rowRefs.current[table.id] = row;
               }}
               key={table.id}
-              className={`table-list-row ${selectedIds.includes(table.id) ? "active" : ""}`}
+              className={`table-list-row ${selectedIds.includes(table.id) ? "active" : ""} ${hoveredId === table.id ? "highlighted" : ""}`}
               draggable
               onClick={(event) => onSelect(table.id, event.metaKey || event.ctrlKey)}
               onMouseEnter={() => onHover(table.id)}

@@ -390,6 +390,7 @@ export default function App() {
         <TableList
           tables={tables}
           selectedIds={selectedIds}
+          hoveredId={hoveredTableId}
           onSelect={selectAsset}
           onHover={setHoveredTableId}
           onRename={(id, label) => updateAsset(id, { label } as Partial<LayoutAsset>)}
@@ -406,6 +407,7 @@ export default function App() {
           }}
           onMapChanged={handleMapChanged}
           onSelect={selectAsset}
+          onHoverTable={setHoveredTableId}
           onEdit={setEditingId}
           onUpdateAsset={updateAsset}
           onFinishEdit={() => setEditingId(null)}

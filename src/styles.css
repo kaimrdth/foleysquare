@@ -240,6 +240,12 @@ input {
   border-color: rgba(19, 111, 99, 0.35);
 }
 
+.table-list-row.highlighted {
+  background: rgba(255, 191, 0, 0.18);
+  border-color: rgba(255, 191, 0, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(255, 191, 0, 0.25);
+}
+
 .table-list-number {
   color: #526071;
   font-size: 11px;

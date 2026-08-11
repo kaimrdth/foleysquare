@@ -17,6 +17,7 @@ type MapCanvasProps = {
   onMapReady: (map: google.maps.Map) => void;
   onMapChanged: (map: LayoutState["map"]) => void;
   onSelect: (id: string | null, additive?: boolean) => void;
+  onHoverTable: (id: string | null) => void;
   onEdit: (id: string | null) => void;
   onUpdateAsset: (id: string, patch: Partial<LayoutAsset>) => void;
   onFinishEdit: () => void;
@@ -91,6 +92,7 @@ export function MapCanvas({
   onMapReady,
   onMapChanged,
   onSelect,
+  onHoverTable,
   onEdit,
   onUpdateAsset,
   onFinishEdit,
@@ -309,6 +311,8 @@ export function MapCanvas({
               transform: `translate(-50%, -50%) rotate(${asset.rotation}deg)`,
             } as React.CSSProperties}
             onPointerDown={(event) => startDrag(event, asset)}
+            onMouseEnter={() => onHoverTable(asset.id)}
+            onMouseLeave={() => onHoverTable(null)}
             onClick={(event) => {
               event.stopPropagation();
             }}
@@ -384,6 +388,7 @@ export function MapCanvas({
     layout.assets,
     onEdit,
     onFinishEdit,
+    onHoverTable,
     onSelect,
     onUpdateAsset,
     overlayState,

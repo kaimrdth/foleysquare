@@ -322,6 +322,7 @@ export default function App() {
             setEditingId(null);
           }}
           onHover={setHoveredTableId}
+          onRename={(id, label) => updateAsset(id, { label } as Partial<LayoutAsset>)}
         />
         <MapCanvas
           layout={layout}

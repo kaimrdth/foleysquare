@@ -450,7 +450,6 @@ export default function App() {
             <h1>MJO Community Resource Fair</h1>
             <p>Find organizations by number on the Foley Square map.</p>
           </div>
-          <a href="/" className="toolbar-link secondary-link">Staff planner</a>
         </header>
       ) : (
         <Toolbar

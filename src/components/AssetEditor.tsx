@@ -71,7 +71,6 @@ export function AssetEditor({ assets, onEdit, onChange, onDelete }: AssetEditorP
               placeholder="Organization name"
               value={asset.label}
               onChange={(event) => onChange({ label: event.target.value } as Partial<LayoutAsset>)}
-              onFocus={onEdit}
             />
           </label>
           <div className="field-group">
@@ -110,7 +109,6 @@ export function AssetEditor({ assets, onEdit, onChange, onDelete }: AssetEditorP
           <input
             value={asset.text}
             onChange={(event) => onChange({ text: event.target.value } as Partial<LayoutAsset>)}
-            onFocus={onEdit}
           />
         </label>
       )}

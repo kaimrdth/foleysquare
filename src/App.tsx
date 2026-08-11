@@ -40,6 +40,7 @@ function offsetPosition(position: LatLngLiteral) {
 export default function App() {
   const [layout, setLayout] = useState<LayoutState>(() => loadLayout(DEFAULT_LAYOUT));
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [hoveredTableId, setHoveredTableId] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<
@@ -53,6 +54,10 @@ export default function App() {
   const selectedAsset = useMemo(
     () => layout.assets.find((asset) => asset.id === selectedId) ?? null,
     [layout.assets, selectedId],
+  );
+  const selectedAssets = useMemo(
+    () => layout.assets.filter((asset) => selectedIds.includes(asset.id)),
+    [layout.assets, selectedIds],
   );
   const tables = useMemo(
     () => layout.assets.filter((asset) => asset.type === "table"),
@@ -117,6 +122,42 @@ export default function App() {
     [updateLayout],
   );
 
+  const updateSelectedAssets = useCallback(
+    (patch: Partial<LayoutAsset>) => {
+      if (selectedIds.length === 0) return;
+      updateLayout((current) => ({
+        ...current,
+        assets: current.assets.map((asset) =>
+          selectedIds.includes(asset.id) && asset.type === "table"
+            ? ({ ...asset, ...patch } as LayoutAsset)
+            : asset,
+        ),
+      }));
+    },
+    [selectedIds, updateLayout],
+  );
+
+  const selectAsset = useCallback((id: string | null, additive = false) => {
+    if (!id) {
+      setSelectedId(null);
+      setSelectedIds([]);
+      setEditingId(null);
+      return;
+    }
+
+    setEditingId(null);
+    setSelectedId(id);
+    setSelectedIds((current) => {
+      if (!additive) return [id];
+      if (current.includes(id)) {
+        const next = current.filter((selected) => selected !== id);
+        setSelectedId(next[next.length - 1] ?? null);
+        return next;
+      }
+      return [...current, id];
+    });
+  }, []);
+
   const reorderTables = useCallback(
     (draggedId: string, targetId: string) => {
       updateLayout((current) => {
@@ -143,14 +184,15 @@ export default function App() {
   );
 
   const deleteSelected = useCallback(() => {
-    if (!selectedId) return;
+    if (selectedIds.length === 0) return;
     updateLayout((current) => ({
       ...current,
-      assets: current.assets.filter((asset) => asset.id !== selectedId),
+      assets: current.assets.filter((asset) => !selectedIds.includes(asset.id)),
     }));
     setSelectedId(null);
+    setSelectedIds([]);
     setEditingId(null);
-  }, [selectedId, updateLayout]);
+  }, [selectedIds, updateLayout]);
 
   const addTable = useCallback(() => {
     const center = mapRef.current?.getCenter()?.toJSON() ?? layout.map.center;
@@ -167,6 +209,7 @@ export default function App() {
 
     updateLayout((current) => ({ ...current, assets: [...current.assets, asset] }));
     setSelectedId(asset.id);
+    setSelectedIds([asset.id]);
     setEditingId(asset.id);
   }, [layout.assets, layout.map.center, updateLayout]);
 
@@ -181,6 +224,7 @@ export default function App() {
 
     updateLayout((current) => ({ ...current, assets: [...current.assets, asset] }));
     setSelectedId(asset.id);
+    setSelectedIds([asset.id]);
     setEditingId(asset.id);
   }, [layout.map.center, updateLayout]);
 
@@ -203,6 +247,7 @@ export default function App() {
 
     updateLayout((current) => ({ ...current, assets: [...current.assets, copy] }));
     setSelectedId(copy.id);
+    setSelectedIds([copy.id]);
   }, [selectedAsset, updateLayout]);
 
   const resetView = useCallback(() => {
@@ -213,6 +258,7 @@ export default function App() {
     if (!confirm("Clear the entire layout?")) return;
     updateLayout((current) => ({ ...current, assets: [] }));
     setSelectedId(null);
+    setSelectedIds([]);
     setEditingId(null);
   }, [updateLayout]);
 
@@ -231,6 +277,7 @@ export default function App() {
         setLayout(imported);
         persistLayout(imported);
         setSelectedId(null);
+        setSelectedIds([]);
         setEditingId(null);
       } catch {
         alert("This file is not a valid Foley Square layout JSON file.");
@@ -296,6 +343,7 @@ export default function App() {
 
       if (event.key === "Escape") {
         setSelectedId(null);
+        setSelectedIds([]);
         setEditingId(null);
       }
 
@@ -341,11 +389,8 @@ export default function App() {
       <main className="map-area">
         <TableList
           tables={tables}
-          selectedId={selectedId}
-          onSelect={(id) => {
-            setSelectedId(id);
-            setEditingId(null);
-          }}
+          selectedIds={selectedIds}
+          onSelect={selectAsset}
           onHover={setHoveredTableId}
           onRename={(id, label) => updateAsset(id, { label } as Partial<LayoutAsset>)}
           onReorder={reorderTables}
@@ -353,21 +398,28 @@ export default function App() {
         <MapCanvas
           layout={layout}
           selectedId={selectedId}
+          selectedIds={selectedIds}
           editingId={editingId}
           hoveredTableId={hoveredTableId}
           onMapReady={(map) => {
             mapRef.current = map;
           }}
           onMapChanged={handleMapChanged}
-          onSelect={setSelectedId}
+          onSelect={selectAsset}
           onEdit={setEditingId}
           onUpdateAsset={updateAsset}
           onFinishEdit={() => setEditingId(null)}
         />
         <AssetEditor
-          asset={selectedAsset}
+          assets={selectedAssets}
           onEdit={() => selectedId && setEditingId(selectedId)}
-          onChange={(patch) => selectedId && updateAsset(selectedId, patch)}
+          onChange={(patch) => {
+            if (selectedIds.length > 1) {
+              updateSelectedAssets(patch);
+            } else if (selectedId) {
+              updateAsset(selectedId, patch);
+            }
+          }}
           onDelete={deleteSelected}
         />
       </main>

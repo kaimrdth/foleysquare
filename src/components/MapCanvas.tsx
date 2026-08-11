@@ -11,11 +11,12 @@ import type { LatLngLiteral, LayoutAsset, LayoutState } from "../types";
 type MapCanvasProps = {
   layout: LayoutState;
   selectedId: string | null;
+  selectedIds: string[];
   editingId: string | null;
   hoveredTableId: string | null;
   onMapReady: (map: google.maps.Map) => void;
   onMapChanged: (map: LayoutState["map"]) => void;
-  onSelect: (id: string | null) => void;
+  onSelect: (id: string | null, additive?: boolean) => void;
   onEdit: (id: string | null) => void;
   onUpdateAsset: (id: string, patch: Partial<LayoutAsset>) => void;
   onFinishEdit: () => void;
@@ -84,6 +85,7 @@ function useLatest<T>(value: T) {
 export function MapCanvas({
   layout,
   selectedId,
+  selectedIds,
   editingId,
   hoveredTableId,
   onMapReady,
@@ -252,7 +254,7 @@ export function MapCanvas({
 
       event.preventDefault();
       event.stopPropagation();
-      onSelect(asset.id);
+      onSelect(asset.id, event.metaKey || event.ctrlKey);
       onEdit(null);
 
       const point = pointFromLatLng(overlayState.projection, asset.position);
@@ -284,7 +286,7 @@ export function MapCanvas({
 
     return layout.assets.map((asset) => {
       const point = pointFromLatLng(overlayState.projection, asset.position);
-      const selected = asset.id === selectedId;
+      const selected = selectedIds.includes(asset.id);
       const editing = asset.id === editingId;
       const highlighted = asset.id === hoveredTableId;
 
@@ -307,7 +309,6 @@ export function MapCanvas({
             onPointerDown={(event) => startDrag(event, asset)}
             onClick={(event) => {
               event.stopPropagation();
-              onSelect(asset.id);
             }}
             onDoubleClick={(event) => {
               event.stopPropagation();
@@ -349,7 +350,6 @@ export function MapCanvas({
           onPointerDown={(event) => startDrag(event, asset)}
           onClick={(event) => {
             event.stopPropagation();
-            onSelect(asset.id);
           }}
           onDoubleClick={(event) => {
             event.stopPropagation();
@@ -386,6 +386,7 @@ export function MapCanvas({
     overlayState,
     hoveredTableId,
     selectedId,
+    selectedIds,
     startDrag,
     startRotate,
   ]);

@@ -1,5 +1,5 @@
 import { Trash2 } from "lucide-react";
-import type { LayoutAsset } from "../types";
+import type { LayoutAsset, TableAsset } from "../types";
 
 const TABLE_COLORS = [
   "#ffffff",
@@ -13,19 +13,56 @@ const TABLE_COLORS = [
 ];
 
 type AssetEditorProps = {
-  asset: LayoutAsset | null;
+  assets: LayoutAsset[];
   onEdit: () => void;
   onChange: (patch: Partial<LayoutAsset>) => void;
   onDelete: () => void;
 };
 
-export function AssetEditor({ asset, onEdit, onChange, onDelete }: AssetEditorProps) {
-  if (!asset) return null;
+export function AssetEditor({ assets, onEdit, onChange, onDelete }: AssetEditorProps) {
+  if (assets.length === 0) return null;
+
+  const asset = assets[0];
+  const selectedTables = assets.filter((item): item is TableAsset => item.type === "table");
+  const isMultiTableSelection = assets.length > 1 && selectedTables.length === assets.length;
+  const sharedColor = isMultiTableSelection
+    ? selectedTables.every((table) => (table.color ?? "#ffffff") === (selectedTables[0].color ?? "#ffffff"))
+      ? selectedTables[0].color ?? "#ffffff"
+      : null
+    : asset.type === "table"
+      ? asset.color ?? "#ffffff"
+      : null;
 
   return (
     <aside className="asset-editor">
-      <div className="editor-title">{asset.type === "table" ? "Table" : "Text"}</div>
-      {asset.type === "table" ? (
+      <div className="editor-title">
+        {isMultiTableSelection ? `${assets.length} Tables` : asset.type === "table" ? "Table" : "Text"}
+      </div>
+      {isMultiTableSelection ? (
+        <>
+          <label>
+            Label
+            <input aria-label="Multiple table labels" value="(multiple)" disabled />
+          </label>
+          <div className="field-group">
+            <div className="field-label">Color</div>
+            <div className="color-swatches" role="radiogroup" aria-label="Table color">
+              {TABLE_COLORS.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  className={`color-swatch ${color === sharedColor ? "active" : ""}`}
+                  style={{ backgroundColor: color }}
+                  aria-label={`Set selected table color ${color}`}
+                  aria-checked={color === sharedColor}
+                  role="radio"
+                  onClick={() => onChange({ color } as Partial<LayoutAsset>)}
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      ) : asset.type === "table" ? (
         <>
           <label>
             Label

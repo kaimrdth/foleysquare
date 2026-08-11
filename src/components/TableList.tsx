@@ -3,8 +3,8 @@ import type { TableAsset } from "../types";
 
 type TableListProps = {
   tables: TableAsset[];
-  selectedId: string | null;
-  onSelect: (id: string) => void;
+  selectedIds: string[];
+  onSelect: (id: string, additive?: boolean) => void;
   onHover: (id: string | null) => void;
   onRename: (id: string, label: string) => void;
   onReorder: (draggedId: string, targetId: string) => void;
@@ -12,7 +12,7 @@ type TableListProps = {
 
 export function TableList({
   tables,
-  selectedId,
+  selectedIds,
   onSelect,
   onHover,
   onRename,
@@ -41,9 +41,9 @@ export function TableList({
           tables.map((table, index) => (
             <div
               key={table.id}
-              className={`table-list-row ${table.id === selectedId ? "active" : ""}`}
+              className={`table-list-row ${selectedIds.includes(table.id) ? "active" : ""}`}
               draggable
-              onClick={() => onSelect(table.id)}
+              onClick={(event) => onSelect(table.id, event.metaKey || event.ctrlKey)}
               onMouseEnter={() => onHover(table.id)}
               onMouseLeave={() => onHover(null)}
               onFocus={() => onHover(table.id)}
@@ -89,7 +89,7 @@ export function TableList({
                 placeholder={`Table ${index + 1}`}
                 onClick={(event) => {
                   event.stopPropagation();
-                  onSelect(table.id);
+                  onSelect(table.id, event.metaKey || event.ctrlKey);
                 }}
                 onMouseDown={(event) => event.stopPropagation()}
                 draggable={false}

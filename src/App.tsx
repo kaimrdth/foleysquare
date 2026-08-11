@@ -12,7 +12,7 @@ import {
   setEditToken,
 } from "./lib/remoteLayout";
 import { downloadLayout, loadLayout, saveLayout } from "./lib/storage";
-import type { LatLngLiteral, LayoutAsset, LayoutState } from "./types";
+import type { LatLngLiteral, LayoutAsset, LayoutSettings, LayoutState } from "./types";
 
 export const DEFAULT_VIEW = {
   center: { lat: 40.71478, lng: -74.00276 },
@@ -25,6 +25,11 @@ const DEFAULT_LAYOUT: LayoutState = {
   version: 1,
   map: DEFAULT_VIEW,
   assets: [],
+  settings: {
+    mapNumberFontSize: 12,
+    organizationFontSize: 12,
+    organizationPanelPositions: {},
+  },
 };
 
 function nextTableLabel(assets: LayoutAsset[]) {
@@ -65,6 +70,14 @@ export default function App() {
     () => layout.assets.filter((asset) => asset.type === "table"),
     [layout.assets],
   );
+  const settings = {
+    ...DEFAULT_LAYOUT.settings!,
+    ...layout.settings,
+    organizationPanelPositions: {
+      ...DEFAULT_LAYOUT.settings!.organizationPanelPositions,
+      ...layout.settings?.organizationPanelPositions,
+    },
+  };
 
   const persistLayout = useCallback((next: LayoutState) => {
     saveLayout(next);
@@ -192,6 +205,36 @@ export default function App() {
       });
     },
     [updateLayout],
+  );
+
+  const updateSettings = useCallback(
+    (patch: Partial<LayoutSettings>) => {
+      updateLayout((current) => ({
+        ...current,
+        settings: {
+          ...DEFAULT_LAYOUT.settings!,
+          ...current.settings,
+          ...patch,
+          organizationPanelPositions: {
+            ...DEFAULT_LAYOUT.settings!.organizationPanelPositions,
+            ...current.settings?.organizationPanelPositions,
+            ...patch.organizationPanelPositions,
+          },
+        },
+      }));
+    },
+    [updateLayout],
+  );
+
+  const moveOrganizationPanel = useCallback(
+    (panel: "left" | "right", position: { x: number; y: number }) => {
+      updateSettings({
+        organizationPanelPositions: {
+          [panel]: position,
+        },
+      });
+    },
+    [updateSettings],
   );
 
   const deleteSelected = useCallback(() => {
@@ -379,6 +422,8 @@ export default function App() {
       <Toolbar
         tableCount={tables.length}
         syncStatus={syncStatus}
+        settings={settings}
+        onSettingsChange={updateSettings}
         onAddTable={addTable}
         onAddText={addText}
         onResetView={resetView}
@@ -398,15 +443,26 @@ export default function App() {
           event.currentTarget.value = "";
         }}
       />
-      <main ref={mapAreaRef} className="map-area">
+      <main
+        ref={mapAreaRef}
+        className="map-area"
+        style={
+          {
+            "--map-number-font-size": `${settings.mapNumberFontSize}px`,
+            "--organization-font-size": `${settings.organizationFontSize}px`,
+          } as React.CSSProperties
+        }
+      >
         <TableList
           tables={tables}
           selectedIds={selectedIds}
           hoveredId={hoveredTableId}
+          panelPositions={settings.organizationPanelPositions ?? {}}
           onSelect={selectAsset}
           onHover={setHoveredTableId}
           onRename={(id, label) => updateAsset(id, { label } as Partial<LayoutAsset>)}
           onReorder={reorderTables}
+          onMovePanel={moveOrganizationPanel}
         />
         <MapCanvas
           layout={layout}

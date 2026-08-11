@@ -5,23 +5,31 @@ type TableListProps = {
   tables: TableAsset[];
   selectedIds: string[];
   hoveredId: string | null;
+  panelPositions: {
+    left?: { x: number; y: number };
+    right?: { x: number; y: number };
+  };
   onSelect: (id: string, additive?: boolean) => void;
   onHover: (id: string | null) => void;
   onRename: (id: string, label: string) => void;
   onReorder: (draggedId: string, targetId: string) => void;
+  onMovePanel: (panel: "left" | "right", position: { x: number; y: number }) => void;
 };
 
 export function TableList({
   tables,
   selectedIds,
   hoveredId,
+  panelPositions,
   onSelect,
   onHover,
   onRename,
   onReorder,
+  onMovePanel,
 }: TableListProps) {
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const panelRefs = useRef<Record<"left" | "right", HTMLElement | null>>({ left: null, right: null });
   const splitIndex = Math.ceil(tables.length / 2);
   const columns = tables.length > 24 ? [tables.slice(0, splitIndex), tables.slice(splitIndex)] : [tables];
 
@@ -137,17 +145,58 @@ export function TableList({
     });
   }
 
+  function startPanelDrag(event: React.PointerEvent, panel: "left" | "right") {
+    const panelElement = panelRefs.current[panel];
+    const parentElement = panelElement?.offsetParent as HTMLElement | null;
+    if (!panelElement || !parentElement) return;
+
+    event.preventDefault();
+    panelElement.setPointerCapture(event.pointerId);
+
+    const panelRect = panelElement.getBoundingClientRect();
+    const parentRect = parentElement.getBoundingClientRect();
+    const start = {
+      pointerX: event.clientX,
+      pointerY: event.clientY,
+      x: panelRect.left - parentRect.left,
+      y: panelRect.top - parentRect.top,
+    };
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      const nextX = start.x + moveEvent.clientX - start.pointerX;
+      const nextY = start.y + moveEvent.clientY - start.pointerY;
+      onMovePanel(panel, {
+        x: Math.min(Math.max(8, nextX), parentRect.width - panelRect.width - 8),
+        y: Math.min(Math.max(8, nextY), parentRect.height - panelRect.height - 8),
+      });
+    };
+
+    const onPointerUp = () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+  }
+
   return (
     <>
       {columns.map((columnTables, columnIndex) => {
         const offset = columnIndex === 0 ? 0 : splitIndex;
+        const panel = columnIndex === 0 ? "left" : "right";
+        const position = panelPositions[panel];
         return (
           <aside
             key={columnIndex}
-            className={`table-list-panel ${columnIndex === 0 ? "left" : "right"}`}
+            ref={(element) => {
+              panelRefs.current[panel] = element;
+            }}
+            className={`table-list-panel ${panel}`}
+            style={position ? { left: position.x, top: position.y, right: "auto" } : undefined}
             aria-label={columnIndex === 0 ? "Organizations" : "Organizations continued"}
           >
-            <div className="table-list-header">
+            <div className="table-list-header" onPointerDown={(event) => startPanelDrag(event, panel)}>
               <span>{columnIndex === 0 ? "Organizations" : "Organizations"}</span>
               <span>
                 {tables.length === 0 ? "0" : `${offset + 1}-${offset + columnTables.length}`}

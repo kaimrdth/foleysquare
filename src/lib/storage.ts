@@ -14,6 +14,16 @@ export function loadLayout(defaultLayout: LayoutState): LayoutState {
       version: 1,
       map: parsed.map ?? defaultLayout.map,
       assets: parsed.assets,
+      settings: {
+        mapNumberFontSize: parsed.settings?.mapNumberFontSize ?? defaultLayout.settings?.mapNumberFontSize ?? 12,
+        organizationFontSize:
+          parsed.settings?.organizationFontSize ?? defaultLayout.settings?.organizationFontSize ?? 12,
+        ...parsed.settings,
+        organizationPanelPositions: {
+          ...defaultLayout.settings?.organizationPanelPositions,
+          ...parsed.settings?.organizationPanelPositions,
+        },
+      },
     };
   } catch {
     return defaultLayout;

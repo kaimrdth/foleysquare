@@ -23,6 +23,15 @@ export type TextAsset = {
 
 export type LayoutAsset = TableAsset | TextAsset;
 
+export type LayoutSettings = {
+  mapNumberFontSize: number;
+  organizationFontSize: number;
+  organizationPanelPositions?: {
+    left?: { x: number; y: number };
+    right?: { x: number; y: number };
+  };
+};
+
 export type LayoutState = {
   version: 1;
   assets: LayoutAsset[];
@@ -32,4 +41,5 @@ export type LayoutState = {
     heading?: number;
     tilt?: number;
   };
+  settings?: LayoutSettings;
 };

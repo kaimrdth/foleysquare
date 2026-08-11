@@ -6,9 +6,17 @@ type TableListProps = {
   onSelect: (id: string) => void;
   onHover: (id: string | null) => void;
   onRename: (id: string, label: string) => void;
+  onReorder: (draggedId: string, targetId: string) => void;
 };
 
-export function TableList({ tables, selectedId, onSelect, onHover, onRename }: TableListProps) {
+export function TableList({
+  tables,
+  selectedId,
+  onSelect,
+  onHover,
+  onRename,
+  onReorder,
+}: TableListProps) {
   return (
     <aside className="table-list-panel" aria-label="Tables">
       <div className="table-list-header">
@@ -23,11 +31,27 @@ export function TableList({ tables, selectedId, onSelect, onHover, onRename }: T
             <div
               key={table.id}
               className={`table-list-row ${table.id === selectedId ? "active" : ""}`}
+              draggable
               onClick={() => onSelect(table.id)}
               onMouseEnter={() => onHover(table.id)}
               onMouseLeave={() => onHover(null)}
               onFocus={() => onHover(table.id)}
               onBlur={() => onHover(null)}
+              onDragStart={(event) => {
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", table.id);
+              }}
+              onDragOver={(event) => {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "move";
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                const draggedId = event.dataTransfer.getData("text/plain");
+                if (draggedId && draggedId !== table.id) {
+                  onReorder(draggedId, table.id);
+                }
+              }}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
@@ -52,6 +76,8 @@ export function TableList({ tables, selectedId, onSelect, onHover, onRename }: T
                   event.stopPropagation();
                   onSelect(table.id);
                 }}
+                onMouseDown={(event) => event.stopPropagation()}
+                draggable={false}
                 onFocus={() => {
                   onHover(table.id);
                   onSelect(table.id);

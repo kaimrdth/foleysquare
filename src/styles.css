@@ -214,6 +214,10 @@ input {
   text-align: left;
 }
 
+.table-list-row:active {
+  cursor: grabbing;
+}
+
 .table-list-row:hover,
 .table-list-row:focus-visible {
   background: rgba(11, 95, 255, 0.08);

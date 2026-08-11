@@ -117,6 +117,31 @@ export default function App() {
     [updateLayout],
   );
 
+  const reorderTables = useCallback(
+    (draggedId: string, targetId: string) => {
+      updateLayout((current) => {
+        const currentTables = current.assets.filter((asset) => asset.type === "table");
+        const fromIndex = currentTables.findIndex((table) => table.id === draggedId);
+        const toIndex = currentTables.findIndex((table) => table.id === targetId);
+
+        if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return current;
+
+        const reorderedTables = [...currentTables];
+        const [draggedTable] = reorderedTables.splice(fromIndex, 1);
+        reorderedTables.splice(toIndex, 0, draggedTable);
+
+        let tableIndex = 0;
+        return {
+          ...current,
+          assets: current.assets.map((asset) =>
+            asset.type === "table" ? reorderedTables[tableIndex++] : asset,
+          ),
+        };
+      });
+    },
+    [updateLayout],
+  );
+
   const deleteSelected = useCallback(() => {
     if (!selectedId) return;
     updateLayout((current) => ({
@@ -323,6 +348,7 @@ export default function App() {
           }}
           onHover={setHoveredTableId}
           onRename={(id, label) => updateAsset(id, { label } as Partial<LayoutAsset>)}
+          onReorder={reorderTables}
         />
         <MapCanvas
           layout={layout}

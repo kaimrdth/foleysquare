@@ -473,6 +473,11 @@ input {
   transform: translateX(-50%);
 }
 
+.asset-editor.anchored {
+  right: auto;
+  transform: none;
+}
+
 .editor-title {
   font-size: 13px;
   font-weight: 800;

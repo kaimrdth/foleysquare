@@ -43,10 +43,12 @@ export default function App() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [hoveredTableId, setHoveredTableId] = useState<string | null>(null);
+  const [editorAnchor, setEditorAnchor] = useState<{ x: number; y: number } | null>(null);
   const [syncStatus, setSyncStatus] = useState<
     "loading" | "saved" | "syncing" | "local" | "error" | "unauthorized"
   >("loading");
   const mapRef = useRef<google.maps.Map | null>(null);
+  const mapAreaRef = useRef<HTMLElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const saveTimerRef = useRef<number | null>(null);
   const remoteReadyRef = useRef(false);
@@ -137,12 +139,21 @@ export default function App() {
     [selectedIds, updateLayout],
   );
 
-  const selectAsset = useCallback((id: string | null, additive = false) => {
+  const selectAsset = useCallback((id: string | null, additive = false, anchor?: { x: number; y: number }) => {
     if (!id) {
       setSelectedId(null);
       setSelectedIds([]);
       setEditingId(null);
+      setEditorAnchor(null);
       return;
+    }
+
+    if (anchor && mapAreaRef.current) {
+      const bounds = mapAreaRef.current.getBoundingClientRect();
+      setEditorAnchor({
+        x: Math.min(Math.max(anchor.x - bounds.left + 18, 260), bounds.width - 260),
+        y: Math.min(Math.max(anchor.y - bounds.top + 18, 14), bounds.height - 260),
+      });
     }
 
     setEditingId(null);
@@ -191,6 +202,7 @@ export default function App() {
     }));
     setSelectedId(null);
     setSelectedIds([]);
+    setEditorAnchor(null);
     setEditingId(null);
   }, [selectedIds, updateLayout]);
 
@@ -386,7 +398,7 @@ export default function App() {
           event.currentTarget.value = "";
         }}
       />
-      <main className="map-area">
+      <main ref={mapAreaRef} className="map-area">
         <TableList
           tables={tables}
           selectedIds={selectedIds}
@@ -414,6 +426,7 @@ export default function App() {
         />
         <AssetEditor
           assets={selectedAssets}
+          anchor={editorAnchor}
           onEdit={() => selectedId && setEditingId(selectedId)}
           onChange={(patch) => {
             if (selectedIds.length > 1) {

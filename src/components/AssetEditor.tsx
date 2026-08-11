@@ -14,12 +14,13 @@ const TABLE_COLORS = [
 
 type AssetEditorProps = {
   assets: LayoutAsset[];
+  anchor: { x: number; y: number } | null;
   onEdit: () => void;
   onChange: (patch: Partial<LayoutAsset>) => void;
   onDelete: () => void;
 };
 
-export function AssetEditor({ assets, onEdit, onChange, onDelete }: AssetEditorProps) {
+export function AssetEditor({ assets, anchor, onEdit, onChange, onDelete }: AssetEditorProps) {
   if (assets.length === 0) return null;
 
   const asset = assets[0];
@@ -34,7 +35,10 @@ export function AssetEditor({ assets, onEdit, onChange, onDelete }: AssetEditorP
       : null;
 
   return (
-    <aside className="asset-editor">
+    <aside
+      className={`asset-editor ${anchor ? "anchored" : ""}`}
+      style={anchor ? { left: anchor.x, top: anchor.y } : undefined}
+    >
       <div className="editor-title">
         {isMultiTableSelection ? `${assets.length} Tables` : asset.type === "table" ? "Table" : "Text"}
       </div>

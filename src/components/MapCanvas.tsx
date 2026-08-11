@@ -16,7 +16,7 @@ type MapCanvasProps = {
   hoveredTableId: string | null;
   onMapReady: (map: google.maps.Map) => void;
   onMapChanged: (map: LayoutState["map"]) => void;
-  onSelect: (id: string | null, additive?: boolean) => void;
+  onSelect: (id: string | null, additive?: boolean, anchor?: { x: number; y: number }) => void;
   onHoverTable: (id: string | null) => void;
   onEdit: (id: string | null) => void;
   onUpdateAsset: (id: string, patch: Partial<LayoutAsset>) => void;
@@ -256,7 +256,7 @@ export function MapCanvas({
 
       event.preventDefault();
       event.stopPropagation();
-      onSelect(asset.id, event.metaKey || event.ctrlKey);
+      onSelect(asset.id, event.metaKey || event.ctrlKey, { x: event.clientX, y: event.clientY });
       onEdit(null);
 
       const point = pointFromLatLng(overlayState.projection, asset.position);

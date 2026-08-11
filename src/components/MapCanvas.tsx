@@ -332,9 +332,7 @@ export function MapCanvas({
                 }}
                 onCancel={onFinishEdit}
               />
-            ) : (
-              <span className="table-label">{asset.label}</span>
-            )}
+            ) : null}
             {!editing && <span className="table-hover-label">{asset.label}</span>}
           </div>
         );

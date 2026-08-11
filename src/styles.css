@@ -400,6 +400,17 @@ input {
     0 2px 10px rgba(0, 0, 0, 0.35);
 }
 
+.table-asset.highlighted .table-number-badge,
+.table-asset:hover .table-number-badge {
+  color: #1f2937;
+  background: #ffbf00;
+  border-color: #7c4a00;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.95),
+    0 0 0 5px rgba(255, 191, 0, 0.42),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 .table-number-badge {
   position: absolute;
   left: 50%;

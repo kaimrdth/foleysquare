@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { TableAsset } from "../types";
 
 type TableListProps = {
@@ -19,6 +19,7 @@ export function TableList({
   onReorder,
 }: TableListProps) {
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   function focusTableName(id: string) {
     window.requestAnimationFrame(() => {
@@ -27,6 +28,16 @@ export function TableList({
       input?.select();
     });
   }
+
+  useEffect(() => {
+    const lastSelectedId = selectedIds[selectedIds.length - 1];
+    if (!lastSelectedId) return;
+
+    rowRefs.current[lastSelectedId]?.scrollIntoView({
+      block: "nearest",
+      inline: "nearest",
+    });
+  }, [selectedIds]);
 
   return (
     <aside className="table-list-panel" aria-label="Tables">
@@ -40,6 +51,9 @@ export function TableList({
         ) : (
           tables.map((table, index) => (
             <div
+              ref={(row) => {
+                rowRefs.current[table.id] = row;
+              }}
               key={table.id}
               className={`table-list-row ${selectedIds.includes(table.id) ? "active" : ""}`}
               draggable

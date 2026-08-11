@@ -70,6 +70,7 @@ export function TableList({
               <input
                 className="table-list-input"
                 value={table.label}
+                style={{ "--label-length": Math.max(table.label.length, 12) } as React.CSSProperties}
                 aria-label={`Table ${index + 1} name`}
                 placeholder={`Table ${index + 1}`}
                 onClick={(event) => {

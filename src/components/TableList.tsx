@@ -58,6 +58,7 @@ export function TableList({ tables, selectedId, onSelect, onHover, onRename }: T
                 }}
                 onChange={(event) => onRename(table.id, event.target.value)}
                 onKeyDown={(event) => {
+                  event.stopPropagation();
                   if (event.key === "Escape") {
                     event.currentTarget.blur();
                   }

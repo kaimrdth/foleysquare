@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { TableAsset } from "../types";
 
 type TableListProps = {
@@ -17,6 +18,16 @@ export function TableList({
   onRename,
   onReorder,
 }: TableListProps) {
+  const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  function focusTableName(id: string) {
+    window.requestAnimationFrame(() => {
+      const input = inputRefs.current[id];
+      input?.focus();
+      input?.select();
+    });
+  }
+
   return (
     <aside className="table-list-panel" aria-label="Tables">
       <div className="table-list-header">
@@ -68,6 +79,9 @@ export function TableList({
                 aria-hidden="true"
               />
               <input
+                ref={(input) => {
+                  inputRefs.current[table.id] = input;
+                }}
                 className="table-list-input"
                 value={table.label}
                 style={{ "--label-length": Math.max(table.label.length, 12) } as React.CSSProperties}
@@ -86,6 +100,17 @@ export function TableList({
                 onChange={(event) => onRename(table.id, event.target.value)}
                 onKeyDown={(event) => {
                   event.stopPropagation();
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    const nextTable = tables[index + 1];
+                    if (nextTable) {
+                      onSelect(nextTable.id);
+                      onHover(nextTable.id);
+                      focusTableName(nextTable.id);
+                    } else {
+                      event.currentTarget.blur();
+                    }
+                  }
                   if (event.key === "Escape") {
                     event.currentTarget.blur();
                   }

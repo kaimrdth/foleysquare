@@ -216,7 +216,8 @@ input {
   left: 50%;
   top: calc(100% + 8px);
   z-index: 2;
-  max-width: 210px;
+  width: max-content;
+  max-width: 240px;
   min-width: 54px;
   padding: 5px 8px;
   transform: translateX(-50%) rotate(var(--counter-rotation, 0deg));
@@ -225,8 +226,9 @@ input {
   font-weight: 800;
   line-height: 1.15;
   text-align: center;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(15, 23, 42, 0.65);
   border-radius: 5px;

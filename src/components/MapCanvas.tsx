@@ -14,6 +14,7 @@ type MapCanvasProps = {
   selectedIds: string[];
   editingId: string | null;
   hoveredTableId: string | null;
+  readOnly?: boolean;
   onMapReady: (map: google.maps.Map) => void;
   onMapChanged: (map: LayoutState["map"]) => void;
   onSelect: (id: string | null, additive?: boolean, anchor?: { x: number; y: number }) => void;
@@ -89,6 +90,7 @@ export function MapCanvas({
   selectedIds,
   editingId,
   hoveredTableId,
+  readOnly = false,
   onMapReady,
   onMapChanged,
   onSelect,
@@ -257,6 +259,7 @@ export function MapCanvas({
       event.preventDefault();
       event.stopPropagation();
       onSelect(asset.id, event.metaKey || event.ctrlKey, { x: event.clientX, y: event.clientY });
+      if (readOnly) return;
       onEdit(null);
 
       const point = pointFromLatLng(overlayState.projection, asset.position);
@@ -318,6 +321,7 @@ export function MapCanvas({
             }}
             onDoubleClick={(event) => {
               event.stopPropagation();
+              if (readOnly) return;
               onEdit(asset.id);
             }}
             role="button"
@@ -325,7 +329,7 @@ export function MapCanvas({
             aria-label={`Table ${asset.label}`}
           >
             <span className="table-number-badge">{tableNumber}</span>
-            {selected && (
+            {selected && !readOnly && (
               <button
                 type="button"
                 className="rotation-handle"
@@ -360,6 +364,7 @@ export function MapCanvas({
           }}
           onDoubleClick={(event) => {
             event.stopPropagation();
+            if (readOnly) return;
             onEdit(asset.id);
           }}
           role="button"

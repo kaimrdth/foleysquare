@@ -44,6 +44,7 @@ function offsetPosition(position: LatLngLiteral) {
 }
 
 export default function App() {
+  const isPublicView = window.location.pathname.startsWith("/public");
   const [layout, setLayout] = useState<LayoutState>(() => loadLayout(DEFAULT_LAYOUT));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -371,9 +372,10 @@ export default function App() {
 
   const handleMapChanged = useCallback(
     (map: LayoutState["map"]) => {
+      if (isPublicView) return;
       updateLayout((current) => ({ ...current, map }));
     },
-    [updateLayout],
+    [isPublicView, updateLayout],
   );
 
   useEffect(() => {
@@ -403,6 +405,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (isPublicView) return;
+
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       const isTyping =
@@ -436,23 +440,33 @@ export default function App() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [deleteSelected, duplicateSelected, selectedId]);
+  }, [deleteSelected, duplicateSelected, isPublicView, selectedId]);
 
   return (
-    <div className="app-shell">
-      <Toolbar
-        tableCount={tables.length}
-        syncStatus={syncStatus}
-        settings={settings}
-        onSettingsChange={updateSettings}
-        onAddTable={addTable}
-        onAddText={addText}
-        onResetView={resetView}
-        onClearLayout={clearLayout}
-        onExport={exportLayout}
-        onImport={() => fileInputRef.current?.click()}
-        onSetEditToken={setSharedEditToken}
-      />
+    <div className={`app-shell ${isPublicView ? "public-shell" : ""}`}>
+      {isPublicView ? (
+        <header className="public-header">
+          <div>
+            <h1>MJO Community Resource Fair</h1>
+            <p>Find organizations by number on the Foley Square map.</p>
+          </div>
+          <a href="/" className="toolbar-link secondary-link">Staff planner</a>
+        </header>
+      ) : (
+        <Toolbar
+          tableCount={tables.length}
+          syncStatus={syncStatus}
+          settings={settings}
+          onSettingsChange={updateSettings}
+          onAddTable={addTable}
+          onAddText={addText}
+          onResetView={resetView}
+          onClearLayout={clearLayout}
+          onExport={exportLayout}
+          onImport={() => fileInputRef.current?.click()}
+          onSetEditToken={setSharedEditToken}
+        />
+      )}
       <input
         ref={fileInputRef}
         className="visually-hidden"
@@ -480,6 +494,7 @@ export default function App() {
           hoveredId={hoveredTableId}
           panelPositions={settings.organizationPanelPositions ?? {}}
           panelSizes={settings.organizationPanelSizes ?? {}}
+          readOnly={isPublicView}
           onSelect={selectAsset}
           onHover={setHoveredTableId}
           onRename={(id, label) => updateAsset(id, { label } as Partial<LayoutAsset>)}
@@ -493,6 +508,7 @@ export default function App() {
           selectedIds={selectedIds}
           editingId={editingId}
           hoveredTableId={hoveredTableId}
+          readOnly={isPublicView}
           onMapReady={(map) => {
             mapRef.current = map;
           }}
@@ -503,19 +519,21 @@ export default function App() {
           onUpdateAsset={updateAsset}
           onFinishEdit={() => setEditingId(null)}
         />
-        <AssetEditor
-          assets={selectedAssets}
-          anchor={editorAnchor}
-          onEdit={() => selectedId && setEditingId(selectedId)}
-          onChange={(patch) => {
-            if (selectedIds.length > 1) {
-              updateSelectedAssets(patch);
-            } else if (selectedId) {
-              updateAsset(selectedId, patch);
-            }
-          }}
-          onDelete={deleteSelected}
-        />
+        {!isPublicView && (
+          <AssetEditor
+            assets={selectedAssets}
+            anchor={editorAnchor}
+            onEdit={() => selectedId && setEditingId(selectedId)}
+            onChange={(patch) => {
+              if (selectedIds.length > 1) {
+                updateSelectedAssets(patch);
+              } else if (selectedId) {
+                updateAsset(selectedId, patch);
+              }
+            }}
+            onDelete={deleteSelected}
+          />
+        )}
       </main>
     </div>
   );

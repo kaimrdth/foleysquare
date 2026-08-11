@@ -13,6 +13,7 @@ type TableListProps = {
     left?: { width: number; height: number };
     right?: { width: number; height: number };
   };
+  readOnly?: boolean;
   onSelect: (id: string, additive?: boolean) => void;
   onHover: (id: string | null) => void;
   onRename: (id: string, label: string) => void;
@@ -27,6 +28,7 @@ export function TableList({
   hoveredId,
   panelPositions,
   panelSizes,
+  readOnly = false,
   onSelect,
   onHover,
   onRename,
@@ -73,21 +75,24 @@ export function TableList({
               }}
               key={table.id}
               className={`table-list-row ${selectedIds.includes(table.id) ? "active" : ""} ${hoveredId === table.id ? "highlighted" : ""}`}
-              draggable
+              draggable={!readOnly}
               onClick={(event) => onSelect(table.id, event.metaKey || event.ctrlKey)}
               onMouseEnter={() => onHover(table.id)}
               onMouseLeave={() => onHover(null)}
               onFocus={() => onHover(table.id)}
               onBlur={() => onHover(null)}
               onDragStart={(event) => {
+                if (readOnly) return;
                 event.dataTransfer.effectAllowed = "move";
                 event.dataTransfer.setData("text/plain", table.id);
               }}
               onDragOver={(event) => {
+                if (readOnly) return;
                 event.preventDefault();
                 event.dataTransfer.dropEffect = "move";
               }}
               onDrop={(event) => {
+                if (readOnly) return;
                 event.preventDefault();
                 const draggedId = event.dataTransfer.getData("text/plain");
                 if (draggedId && draggedId !== table.id) {
@@ -109,50 +114,55 @@ export function TableList({
                 style={{ backgroundColor: table.color ?? "#ffffff" }}
                 aria-hidden="true"
               />
-              <input
-                ref={(input) => {
-                  inputRefs.current[table.id] = input;
-                }}
-                className="table-list-input"
-                value={table.label}
-                style={{ "--label-length": Math.max(table.label.length, 12) } as React.CSSProperties}
-                aria-label={`Table ${index + 1} name`}
-                placeholder={`Table ${index + 1}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onSelect(table.id, event.metaKey || event.ctrlKey);
-                }}
-                onMouseDown={(event) => event.stopPropagation()}
-                draggable={false}
-                onFocus={() => {
-                  onHover(table.id);
-                  onSelect(table.id);
-                }}
-                onChange={(event) => onRename(table.id, event.target.value)}
-                onKeyDown={(event) => {
-                  event.stopPropagation();
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    const nextTable = tables[index + 1];
-                    if (nextTable) {
-                      onSelect(nextTable.id);
-                      onHover(nextTable.id);
-                      focusTableName(nextTable.id);
-                    } else {
+              {readOnly ? (
+                <span className="table-list-name">{table.label || `Table ${index + 1}`}</span>
+              ) : (
+                <input
+                  ref={(input) => {
+                    inputRefs.current[table.id] = input;
+                  }}
+                  className="table-list-input"
+                  value={table.label}
+                  style={{ "--label-length": Math.max(table.label.length, 12) } as React.CSSProperties}
+                  aria-label={`Table ${index + 1} name`}
+                  placeholder={`Table ${index + 1}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onSelect(table.id, event.metaKey || event.ctrlKey);
+                  }}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  draggable={false}
+                  onFocus={() => {
+                    onHover(table.id);
+                    onSelect(table.id);
+                  }}
+                  onChange={(event) => onRename(table.id, event.target.value)}
+                  onKeyDown={(event) => {
+                    event.stopPropagation();
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      const nextTable = tables[index + 1];
+                      if (nextTable) {
+                        onSelect(nextTable.id);
+                        onHover(nextTable.id);
+                        focusTableName(nextTable.id);
+                      } else {
+                        event.currentTarget.blur();
+                      }
+                    }
+                    if (event.key === "Escape") {
                       event.currentTarget.blur();
                     }
-                  }
-                  if (event.key === "Escape") {
-                    event.currentTarget.blur();
-                  }
-                }}
-              />
+                  }}
+                />
+              )}
             </div>
       );
     });
   }
 
   function startPanelDrag(event: React.PointerEvent, panel: "left" | "right") {
+    if (readOnly) return;
     const panelElement = panelRefs.current[panel];
     const parentElement = panelElement?.offsetParent as HTMLElement | null;
     if (!panelElement || !parentElement) return;
@@ -188,6 +198,7 @@ export function TableList({
   }
 
   function startPanelResize(event: React.PointerEvent, panel: "left" | "right") {
+    if (readOnly) return;
     const panelElement = panelRefs.current[panel];
     const parentElement = panelElement?.offsetParent as HTMLElement | null;
     if (!panelElement || !parentElement) return;
@@ -248,12 +259,14 @@ export function TableList({
               </span>
             </div>
             <div className="table-list-scroll">{renderRows(columnTables, offset)}</div>
-            <button
-              type="button"
-              className="panel-resize-handle"
-              aria-label="Resize organization panel"
-              onPointerDown={(event) => startPanelResize(event, panel)}
-            />
+            {!readOnly && (
+              <button
+                type="button"
+                className="panel-resize-handle"
+                aria-label="Resize organization panel"
+                onPointerDown={(event) => startPanelResize(event, panel)}
+              />
+            )}
           </aside>
         );
       })}

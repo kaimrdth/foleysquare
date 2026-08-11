@@ -69,7 +69,8 @@ input {
 }
 
 .toolbar button,
-.delete-button {
+.delete-button,
+.toolbar-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -81,10 +82,12 @@ input {
   border: 1px solid #bac3d0;
   border-radius: 6px;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .toolbar button:hover,
-.delete-button:hover {
+.delete-button:hover,
+.toolbar-link:hover {
   background: #f2f5f8;
 }
 
@@ -96,6 +99,37 @@ input {
 
 .toolbar .primary-action:hover {
   background: #0e5c52;
+}
+
+.public-header {
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 64px;
+  padding: 10px 14px;
+  color: #172033;
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom: 1px solid #d8dde5;
+  box-shadow: 0 1px 5px rgba(18, 28, 45, 0.1);
+}
+
+.public-header h1 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.public-header p {
+  margin: 3px 0 0;
+  color: #526071;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.secondary-link {
+  min-width: max-content;
 }
 
 .toolbar .danger-action {
@@ -329,6 +363,16 @@ input {
   background: transparent;
   border: 1px solid transparent;
   border-radius: 4px;
+}
+
+.table-list-name {
+  min-width: 0;
+  overflow: hidden;
+  color: #172033;
+  font-size: var(--organization-font-size, 12px);
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .table-list-input:hover,

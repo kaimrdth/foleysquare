@@ -1,4 +1,4 @@
-import { Cloud, Download, Eraser, FileUp, KeyRound, MapPinned, Plus, RotateCcw, Type } from "lucide-react";
+import { Cloud, Download, Eraser, Eye, FileUp, KeyRound, MapPinned, Plus, RotateCcw, Type } from "lucide-react";
 import type { LayoutSettings } from "../types";
 
 type ToolbarProps = {
@@ -48,6 +48,10 @@ export function Toolbar({
           <Plus size={16} aria-hidden="true" />
           Add Table
         </button>
+        <a className="toolbar-link" href="/public" target="_blank" rel="noreferrer">
+          <Eye size={16} aria-hidden="true" />
+          Public Map
+        </a>
         <button type="button" onClick={onAddText}>
           <Type size={16} aria-hidden="true" />
           Add Text

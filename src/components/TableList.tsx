@@ -147,7 +147,9 @@ export function TableList({
           >
             <div className="table-list-header">
               <span>{columnIndex === 0 ? "Organizations" : "Organizations"}</span>
-              <span>{columnIndex === 0 ? tables.length : `${offset + 1}-${tables.length}`}</span>
+              <span>
+                {tables.length === 0 ? "0" : `${offset + 1}-${offset + columnTables.length}`}
+              </span>
             </div>
             <div className="table-list-scroll">{renderRows(columnTables, offset)}</div>
           </aside>

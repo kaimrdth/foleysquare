@@ -196,7 +196,7 @@ input {
 
 .table-list-scroll {
   min-height: 0;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
   padding: 6px;
 }
@@ -257,14 +257,15 @@ input {
 
 .table-list-input {
   min-width: 0;
-  width: max(260px, calc(var(--label-length, 12) * 8px));
-  max-width: none;
+  width: 260px;
+  max-width: 100%;
   height: 23px;
   padding: 2px 4px;
-  overflow: visible;
+  overflow: hidden;
   color: #172033;
   font-size: 12px;
   font-weight: 700;
+  text-overflow: ellipsis;
   white-space: nowrap;
   background: transparent;
   border: 1px solid transparent;

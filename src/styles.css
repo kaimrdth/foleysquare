@@ -1,0 +1,358 @@
+:root {
+  color: #18212f;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f4f6f7;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.toolbar {
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 58px;
+  padding: 10px 14px;
+  color: #172033;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid #d8dde5;
+  box-shadow: 0 1px 5px rgba(18, 28, 45, 0.1);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: max-content;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toolbar button,
+.delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 11px;
+  color: #172033;
+  background: #fff;
+  border: 1px solid #bac3d0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.toolbar button:hover,
+.delete-button:hover {
+  background: #f2f5f8;
+}
+
+.toolbar .primary-action {
+  color: #fff;
+  background: #136f63;
+  border-color: #136f63;
+}
+
+.toolbar .primary-action:hover {
+  background: #0e5c52;
+}
+
+.toolbar .danger-action {
+  color: #7c1b1b;
+}
+
+.icon-button {
+  width: 34px;
+  padding: 0;
+}
+
+.table-count {
+  min-width: 75px;
+  padding: 0 4px;
+  font-size: 14px;
+  font-weight: 650;
+  color: #384456;
+}
+
+.sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 0 8px;
+  color: #384456;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(243, 246, 249, 0.9);
+  border: 1px solid #cdd5df;
+  border-radius: 999px;
+}
+
+.sync-status.saved {
+  color: #0d5d54;
+}
+
+.sync-status.syncing,
+.sync-status.loading {
+  color: #6a5212;
+}
+
+.sync-status.error,
+.sync-status.unauthorized {
+  color: #8a1f1f;
+}
+
+.map-area,
+.map-shell,
+.map-canvas {
+  position: relative;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.map-shell {
+  overflow: hidden;
+  background: #d9dee4;
+}
+
+.map-message {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 4;
+  max-width: min(520px, calc(100% - 32px));
+  transform: translate(-50%, -50%);
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #cdd4de;
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(20, 30, 46, 0.18);
+  text-align: center;
+}
+
+.asset-overlay-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.map-asset {
+  position: absolute;
+  pointer-events: auto;
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+}
+
+.is-map-asset-dragging,
+.is-map-asset-dragging * {
+  cursor: grabbing !important;
+}
+
+.table-asset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 12px;
+  min-height: 7px;
+  overflow: visible;
+  color: #111827;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(20, 29, 43, 0.86);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+.table-asset.selected {
+  border-color: #0b5fff;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.92),
+    0 0 0 5px rgba(11, 95, 255, 0.38),
+    0 2px 8px rgba(0, 0, 0, 0.32);
+}
+
+.table-label {
+  display: block;
+  width: 100%;
+  padding: 0 4px;
+  overflow: hidden;
+  font-size: clamp(8px, 12px, 12px);
+  font-weight: 700;
+  line-height: 1.05;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rotation-handle {
+  position: absolute;
+  left: 50%;
+  top: -32px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 2px solid #0b5fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+  cursor: grab;
+}
+
+.rotation-handle::after {
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  width: 2px;
+  height: 15px;
+  transform: translateX(-50%);
+  background: #0b5fff;
+  content: "";
+}
+
+.table-input,
+.text-input {
+  width: 100%;
+  min-width: 44px;
+  color: #111827;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #0b5fff;
+  outline: none;
+  text-align: center;
+}
+
+.text-asset {
+  transform: translate(-50%, -50%);
+  padding: 4px 7px;
+  color: #101828;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(15, 23, 42, 0.5);
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+}
+
+.text-asset.selected {
+  border-color: #0b5fff;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.92),
+    0 0 0 5px rgba(11, 95, 255, 0.35);
+}
+
+.asset-editor {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 6;
+  display: grid;
+  gap: 10px;
+  width: 230px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #cbd3df;
+  border-radius: 8px;
+  box-shadow: 0 16px 38px rgba(15, 23, 42, 0.18);
+}
+
+.editor-title {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #425066;
+}
+
+.asset-editor label {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 750;
+  color: #4a5669;
+}
+
+.asset-editor input {
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 8px;
+  color: #172033;
+  border: 1px solid #b8c2d1;
+  border-radius: 6px;
+}
+
+.delete-button {
+  color: #7c1b1b;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 760px) {
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toolbar-actions {
+    justify-content: flex-start;
+  }
+
+  .asset-editor {
+    right: 8px;
+    left: 8px;
+    top: 8px;
+    width: auto;
+  }
+}

@@ -194,8 +194,6 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 12px;
-  min-height: 7px;
   overflow: visible;
   color: #111827;
   background: rgba(255, 255, 255, 0.92);
@@ -229,7 +227,7 @@ input {
 .table-hover-label {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   z-index: 2;
   max-width: 210px;
   min-width: 54px;

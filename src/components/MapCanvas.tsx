@@ -69,8 +69,8 @@ function tablePixelSize(
   const depthEnd = destinationPixel(projection, position, TABLE_DEPTH_METERS, rotation);
 
   return {
-    width: Math.max(10, Math.hypot(widthEnd.x - center.x, widthEnd.y - center.y)),
-    height: Math.max(6, Math.hypot(depthEnd.x - center.x, depthEnd.y - center.y)),
+    width: Math.hypot(widthEnd.x - center.x, widthEnd.y - center.y),
+    height: Math.hypot(depthEnd.x - center.x, depthEnd.y - center.y),
   };
 }
 
